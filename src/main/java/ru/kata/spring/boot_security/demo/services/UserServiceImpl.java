@@ -47,16 +47,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void updateUser(User updateUser, Long id) {
-        User user_from_DB = userRepository.findById(id).get();
+        User user_from_DB = userRepository.getById(id);
         user_from_DB.setUsername(updateUser.getUsername());
+        user_from_DB.setPassword(passwordEncoder.encode(updateUser.getPassword()));
         user_from_DB.setRoles((List<Role>) updateUser.getAuthorities());
-
-        if (user_from_DB.getPassword().equals(updateUser.getPassword())) {
-            userRepository.save(user_from_DB);
-        } else {
-            user_from_DB.setPassword(passwordEncoder.encode(updateUser.getPassword()));
-            userRepository.save(user_from_DB);
-        }
         userRepository.save(user_from_DB);
     }
 
@@ -67,6 +61,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     @Override
     public boolean deleteUserById(Long id) {
         if (userRepository.findById(id).isPresent()) {
